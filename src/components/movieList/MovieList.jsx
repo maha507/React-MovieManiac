@@ -4,7 +4,7 @@ import _ from "lodash";
 import "./MovieList.css";
 import MovieCard from "./movieCard";
 import Fire from "../../assets/fire.png";
-import FilterGroup from "../FilterGroup";
+import FilterGroup from "./FilterGroup";
 
 function MovieList() {
   const [movies, setMovies] = useState([]);
