@@ -9,13 +9,45 @@ function MovieList() {
     fetchMovies();
   }, []);
 
+  // const fetchMovies = async () => {
+  //   const response = await fetch(
+  //     "http://www.omdbapi.com/?s=batman&apikey=60233b9b"
+  //   );
+  //   const data = await response.json();
+  //   console.log(data);
+  //   setMovies(data.Search);
+  // };
   const fetchMovies = async () => {
     const response = await fetch(
       "http://www.omdbapi.com/?s=batman&apikey=60233b9b"
     );
     const data = await response.json();
-    console.log(data);
-    setMovies(data.Search);
+
+    if (data.Response === "True") {
+      // Fetch detailed data for each movie
+      const movieDetailsPromises = data.Search.map(async (movie) => {
+        const detailResponse = await fetch(
+          `http://www.omdbapi.com/?i=${movie.imdbID}&apikey=60233b9b`
+        );
+        const detailData = await detailResponse.json();
+
+        return {
+          title: movie.Title,
+          year: movie.Year,
+          imdbID: movie.imdbID,
+          poster: movie.Poster,
+          overview: detailData.Plot, // Overview
+          rating: detailData.imdbRating, // Rating
+        };
+      });
+
+      // Wait for all movie details to be fetched
+      const moviesWithDetails = await Promise.all(movieDetailsPromises);
+
+      setMovies(moviesWithDetails); // Update the state with detailed movies
+    } else {
+      console.error("Error fetching movies:", data.Error);
+    }
   };
 
   return (
@@ -44,7 +76,12 @@ function MovieList() {
       </header>
       <div className="movie_cards">
         {movies.map((movie) => (
-          <MovieCard key={movie.imdbID} movie={movie} />
+          <MovieCard
+            key={movie.imdbID}
+            movie={movie}
+            overview={movie.overview}
+            rating={movie.rating}
+          />
         ))}
       </div>
     </section>
