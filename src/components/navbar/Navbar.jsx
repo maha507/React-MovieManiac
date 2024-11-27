@@ -9,15 +9,15 @@ function Navbar() {
     <nav className="navbar">
       <h1>Moviemaniac</h1>
       <div className="navbar_links">
-        <a href="">
+        <a href="#popular">
           Popular
           <img src={Fire} alt="fire emoji" className="navbar_emoji"></img>
         </a>
-        <a href="">
+        <a href="#top_rated">
           Top Rated
           <img src={Star} alt="star emoji" className="navbar_emoji"></img>
         </a>
-        <a href="">
+        <a href="#upcoming">
           Upcomimg
           <img src={Party} alt="party emoji" className="navbar_emoji"></img>
         </a>

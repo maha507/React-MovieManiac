@@ -3,10 +3,9 @@ import _ from "lodash";
 
 import "./MovieList.css";
 import MovieCard from "./movieCard";
-import Fire from "../../assets/fire.png";
 import FilterGroup from "./FilterGroup";
 
-function MovieList() {
+function MovieList({ type, title, emoji }) {
   const [movies, setMovies] = useState([]);
   const [filterMovies, setfilterMovies] = useState([]);
   const [minRating, setMinrating] = useState(0);
@@ -14,6 +13,7 @@ function MovieList() {
     by: "default",
     order: "asc",
   });
+
   useEffect(() => {
     fetchMovies();
   }, []);
@@ -26,52 +26,50 @@ function MovieList() {
   }, [sort]);
 
   const fetchMovies = async () => {
-    const response = await fetch(
-      "http://www.omdbapi.com/?s=batman&apikey=60233b9b"
-    );
-    const data = await response.json();
+    try {
+      const response = await fetch(
+        `https://www.omdbapi.com/?s=${type}&apikey=60233b9b`
+      );
+      const data = await response.json();
 
-    if (data.Response === "True") {
-      // Fetch detailed data for each movie
-      const movieDetailsPromises = data.Search.map(async (movie) => {
-        const detailResponse = await fetch(
-          `http://www.omdbapi.com/?i=${movie.imdbID}&apikey=60233b9b`
-        );
-        const detailData = await detailResponse.json();
+      if (data.Response === "True") {
+        const movieDetailsPromises = data.Search.map(async (movie) => {
+          const detailResponse = await fetch(
+            `https://www.omdbapi.com/?i=${movie.imdbID}&apikey=60233b9b`
+          );
+          const detailData = await detailResponse.json();
 
-        return {
-          title: movie.Title,
-          year: movie.Year,
-          imdbID: movie.imdbID,
-          poster: movie.Poster,
-          overview: detailData.Plot, // Overview
-          rating: detailData.imdbRating, // Rating
-        };
-      });
+          return {
+            title: movie.Title,
+            year: movie.Year,
+            imdbID: movie.imdbID,
+            poster:
+              movie.Poster !== "N/A"
+                ? movie.Poster
+                : "path_to_placeholder_image.png",
+            overview: detailData.Plot,
+            rating: detailData.imdbRating,
+          };
+        });
 
-      // Wait for all movie details to be fetched
-      const moviesWithDetails = await Promise.all(movieDetailsPromises);
-
-      setMovies(moviesWithDetails);
-      setfilterMovies(moviesWithDetails); // Update the state with detailed movies
-    } else {
-      console.error("Error fetching movies:", data.Error);
+        const moviesWithDetails = await Promise.all(movieDetailsPromises);
+        setMovies(moviesWithDetails);
+        setfilterMovies(moviesWithDetails);
+      } else {
+        console.error("No movies found:", data.Error);
+      }
+    } catch (error) {
+      console.error("Error fetching movies:", error);
     }
   };
 
   const handleFilter = (rate) => {
-    if (rate === minRating) {
-      setMinrating(0);
-      setfilterMovies(movies);
-    } else {
-      setMinrating(minRating);
-
-      const filtered = movies.filter((movie) => {
-        const movieRating = parseFloat(movie.rating); // Ensure it's a number
-        return movieRating >= rate;
-      });
-      setfilterMovies(filtered);
-    }
+    const filtered =
+      rate === minRating
+        ? movies
+        : movies.filter((movie) => parseFloat(movie.rating) >= rate);
+    setMinrating(rate);
+    setfilterMovies(filtered);
   };
 
   const handleSort = (e) => {
@@ -80,11 +78,11 @@ function MovieList() {
   };
 
   return (
-    <section className="movie_list">
+    <section className="movie_list" id={type}>
       <header className="align_center movie_list_header">
         <h2 className="align_center movie_list_heading">
-          Popular
-          <img src={Fire} alt="fire emoji" className="navbar_emoji"></img>
+          {title}
+          <img src={emoji} alt={`${emoji} icon`} className="navbar_emoji" />
         </h2>
         <div className="align_center movie_list_fs">
           <FilterGroup
@@ -94,7 +92,6 @@ function MovieList() {
           />
           <select
             name="by"
-            id=""
             className="movie_sorting"
             onChange={handleSort}
             value={sort.by}
@@ -105,13 +102,12 @@ function MovieList() {
           </select>
           <select
             name="order"
-            id=""
             className="movie_sorting"
             onChange={handleSort}
             value={sort.order}
           >
-            <option value="asc">Asending</option>
-            <option value="desc">Desending</option>
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
           </select>
         </div>
       </header>
