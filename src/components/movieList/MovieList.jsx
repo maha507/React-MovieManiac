@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import _ from "lodash";
 
 import "./MovieList.css";
-import MovieCard from "./movieCard";
+import MovieCard from "./MovieCard";
 import FilterGroup from "./FilterGroup";
 
 function MovieList({ type, title, emoji }) {
