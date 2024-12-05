@@ -3,24 +3,25 @@ import "./navbar.css";
 import Fire from "../../assets/fire.png";
 import Star from "../../assets/star2.png";
 import Party from "../../assets/tada.png";
+import { NavLink } from "react-router-dom";
 
 function Navbar() {
   return (
     <nav className="navbar">
       <h1>Moviemaniac</h1>
       <div className="navbar_links">
-        <a href="#popular">
+        <NavLink to="/">
           Popular
           <img src={Fire} alt="fire emoji" className="navbar_emoji"></img>
-        </a>
-        <a href="#top_rated">
+        </NavLink>
+        <NavLink to="/top_rated">
           Top Rated
           <img src={Star} alt="star emoji" className="navbar_emoji"></img>
-        </a>
-        <a href="#upcoming">
+        </NavLink>
+        <NavLink to="/upcoming">
           Upcomimg
           <img src={Party} alt="party emoji" className="navbar_emoji"></img>
-        </a>
+        </NavLink>
       </div>
     </nav>
   );
